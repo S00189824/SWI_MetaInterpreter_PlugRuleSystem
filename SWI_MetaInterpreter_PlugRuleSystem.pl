@@ -1,62 +1,56 @@
-% Computational Intelligence: a logical approach.
-% Prolog Code.
-% OBJECT-LEVEL DEFINITION OF THE ELECTRICAL DOMAIN, WITH ASKABLES
-% Copyright (c) 1998, Poole, Mackworth, Goebel and Oxford University Press.
+:- op(1150, xfx, <- ).
+% `&' is the object level conjunction.
+% It is an infix meta-level binary function symbol:
 
-% Load ask.pl first
+:- op(950,xfy, &).
 
-% Here "<-" is the object-level "if" and is a meta-level predicate.
-% "&" is the object-level conjunction and is a meta-level function symbol.
+% wired(plug) <- connectedto(blue,lt) & connectedto(brown,rt) &
+% connectedto(green,ct).
+wired(plug) <- internal_wire(blue,lt) & internal_wire(brown,rt)& internal_wire(green,ct).
 
-% lit(L) is true if light L is lit.
-lit(L) <-
-   light(L) &
-   ok(L) &
-   live(L).
+socket(plug) <- true.
 
-% live(W) is true if W is live (i.e., current will flow through it if grounded)
-live(W) <-
+live(W)<-
    connectedto(W,W1) &
    live(W1).
 
-live(outside) <- true.
+live(outside)<- true.
 
-% connectedto(W0,W1) is true if W0 is connnected to W1 such that current will
-% flow from W1 to W0.
 
-connectedto(l1,w0) <- true.
-connectedto(w0,w1) <- up(s2).
-connectedto(w0,w2) <- down(s2).
-connectedto(w1,w3) <- up(s1).
-connectedto(w2,w3) <- down(s1).
-connectedto(l2,w4) <- true.
-connectedto(w4,w3) <- up(s3).
-connectedto(p1,w3) <- true.
+wiredcorrect(plug) <- connected(b,lt) & connected(brown,lt) & connected(b,lt).
+
+
 connectedto(w3,w5) <- ok(cb1).
-connectedto(p2,w6) <- true.
+connectedto(toaster,plug) <- wiredcorrect(plug).
 connectedto(w6,w5) <- ok(cb2).
 connectedto(w5,outside) <- true.
+connectedto(toaster,plug)<- wired(plug) & ok(plug).
+connectedto(socket,wire2) <- true.
+connectedto(wire2,wire1) <- up(cb).
+% connectedto(blue,lt) & connectedto(brown,rt) &
+% connectedto(green,ct)<-true.
+connectedto(w1,outside) <- up(ts).
 
-% light(L) is true if L is a light
-light(l1) <- true.
-light(l2) <- true.
+ok(plug) <- true.
+ok(toaster) <- connectedto(toaster,plug)& live(plug).
+ok(socket) <- true.
+connectedto(plug,socket) <- true.
+ok(wire)<- connectedto(toaster,plug) & live(plug).
 
-% up(S) is true if switch S is up
-% down(S) is true if switch S is down
-% these are askable
-% ok(G) is true if G is working
-ok(l1) <- true.
-ok(l2) <- true.
-ok(cb1) <- true.
-ok(cb2) <- true.
+connectedto(p1,l1)<- true.
 
+plugIn(p) <- true.
+live(socket) <- true.
 
-% Example 6.8 query
-% ? aprove(lit(L)).
-%
 askable(up(_)).
 askable(down(_)).
+askable(internal_wire(_,_)).
+askable(connected(b,lt)).
+askable(connected(g,ct)).
+askable(connected(brown,lt)).
 
 
-
-plug(l1,w0) <-
+prove(true).
+prove((P & B)):-
+    prove(P),
+    prove(B).
